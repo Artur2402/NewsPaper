@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
+from django.core.cache import cache
 
 from .forms import PostForm
 from .models import Post, Author, Category, Subscription, PostCategory
@@ -40,35 +41,20 @@ class Search(ListView):
         context = super().get_context_data(**kwargs)
         context['filterset'] = self.filterset
         return context
-
-# class PostArcCreate(CreateView, LoginRequiredMixin):
-#     # raise_exception = True
-#     model = Post
-#     form_class = PostForm
-#
-#     class Meta:
-#         abstract = True
-
-
-# class PostArcEdit(UpdateView, LoginRequiredMixin):
-#     model = Post
-#     form_class = PostForm
-#
-#     class Meta:
-#         abstract = True
-
-
-# class PostArcDelete(DeleteView, LoginRequiredMixin):
-#     model = Post
-#     success_url = reverse_lazy('post_list')
-#
-#     class Meta:
-#         abstract = True
+        
 
 class PostDetail(DetailView):
     model = Post
     template_name = 'new.html'
     context_object_name = 'new'
+    
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'post-{self.kwargs["pk"]}', None)
+
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'post-{self.kwargs["pk"]}', obj)
+        return obj
 
 
 class PostCreate(PermissionRequiredMixin, CreateView):
