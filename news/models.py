@@ -74,6 +74,9 @@ class Post(Likeable):
     def get_absolute_url(self):
         return reverse('post_detail', args=[str(self.id)])
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete(f'post-{self.pk}')
 
 
 class PostCategory(models.Model):
