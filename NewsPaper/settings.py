@@ -218,6 +218,12 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'warning_console'
         },
+        'console_error': {
+            'level': 'ERROR',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'error_critical'
+        },
         'general': {
             'level': 'INFO',
             'filters': ['require_debug_false'],
@@ -253,7 +259,8 @@ LOGGING = {
 
     'loggers': {
         'django': {
-            'handlers': ['console_debug', 'console_warning', 'general'],
+            'handlers': ['console_debug', 'console_warning', 'general', 'console_error'],
+            'level': 'DEBUG',
             'propagate': True,
         },
         'django.template': {
@@ -266,6 +273,7 @@ LOGGING = {
         },
         'django.security': {
             'handlers': ['security'],
+            'level': 'INFO',
             'propagate': True,
         },
         'django.request': {
